@@ -40,17 +40,6 @@ describe('Service Worker Test', function() {
       }
     })
     .then(() => {
-      return new Promise((resolve, reject) => {
-        var newIframe = document.createElement('iframe');
-        newIframe.classList.add('js-test-iframe');
-        newIframe.src = '/test-iframe/' + Math.random();
-        newIframe.addEventListener('load', () => {
-          resolve();
-        });
-        document.body.appendChild(newIframe);
-      });
-    })
-    .then(() => {
       console.log('\n\n----\n\n');
       done();
     }).catch(done);
@@ -61,6 +50,12 @@ describe('Service Worker Test', function() {
       SWTestHelper.unregisterAllRegistrations(),
       SWTestHelper.clearAllCaches()
     ])
+    .then(() => {
+      var iframeList = document.querySelectorAll('.js-test-iframe');
+      for (var i = 0; i < iframeList.length; i++) {
+        iframeList[i].parentElement.removeChild(iframeList[i]);
+      }
+    })
     .then(() => done()).catch(done);
   });
 
@@ -428,23 +423,6 @@ describe('Service Worker Test', function() {
 
   describe('Test fetch behaviour', () => {
     it('should have two cached assets', (done) => {
-      console.log('skip and activate test 1');
-      SWTestHelper.activateSW('/sw-fetch-test.js')
-        .then(() => {
-          console.log('IS THIS RUNNING');
-          return SWTestHelper.getAllCachedAssets('cache-test');
-        })
-        .then((cachedAssets) => {
-          Object.keys(cachedAssets).should.have.length(2);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it('should be able to activate a new service worker after unregistering the first sw', (done) => {
-      console.log('skip and activate test 2');
       SWTestHelper.activateSW('/sw-fetch-test.js')
         .then(() => {
           return SWTestHelper.getAllCachedAssets('cache-test');
@@ -460,16 +438,13 @@ describe('Service Worker Test', function() {
 
     // These tests should be fixed once the above test case is fixed.
     // Current you can't test multiple activated sw from a single page
-    /** it('should return cached echo response 1', (done) => {
-      SWTestHelper.activateSW('/sw-fetch-test.js')
-        .then(() => {
-          return SWTestHelper.getAllCachedAssets('cache-test');
-        })
-        .then((cachedAssets) => {
-          Object.keys(cachedAssets).should.have.length(2);
-        })
-        .then(() => {
-          return fetch('/echo/test-1');
+    it('should return cached echo response 1 with -sw on the end', (done) => {
+      SWTestHelper.createNewIframe()
+        .then((iframe) => {
+          return SWTestHelper.activateSW('/sw-fetch-test.js')
+            .then(() => {
+              return iframe.contentWindow.fetch('/echo/test-1');
+            });
         })
         .then((response) => {
           return response.text();
@@ -484,9 +459,13 @@ describe('Service Worker Test', function() {
     });
 
     it('should return cached echo response 2', (done) => {
-      SWTestHelper.activateSW('/sw-fetch-test.js')
-        .then(() => {
-          return fetch('/echo/test-2');
+      SWTestHelper.createNewIframe()
+        .then((iframe) => {
+          return SWTestHelper.activateSW('/sw-fetch-test.js')
+            .then(() => {
+              return iframe.contentWindow
+                .fetch('/echo/test-2');
+            });
         })
         .then((response) => {
           return response.text();
@@ -501,10 +480,14 @@ describe('Service Worker Test', function() {
         });
     });
 
-    /** it('should return a response to indicate it would come from the network for same origin url', (done) => {
-      SWTestHelper.activateSW('/sw-fetch-test.js')
-        .then(() => {
-          return fetch('/url-from-network');
+    it('should return a response to indicate it would come from the network for same origin url', (done) => {
+      SWTestHelper.createNewIframe()
+        .then((iframe) => {
+          return SWTestHelper.activateSW('/sw-fetch-test.js')
+            .then(() => {
+              return iframe.contentWindow
+                .fetch('/url-from-network');
+            });
         })
         .then((response) => {
           return response.text();
@@ -519,9 +502,13 @@ describe('Service Worker Test', function() {
     });
 
     it('should return a response to indicate it would come from the network for remote origin url', (done) => {
-      SWTestHelper.activateSW('/sw-fetch-test.js')
-        .then(() => {
-          return fetch('https://google.com/');
+      SWTestHelper.createNewIframe()
+        .then((iframe) => {
+          return SWTestHelper.activateSW('/sw-fetch-test.js')
+            .then(() => {
+              return iframe.contentWindow
+                .fetch('https://google.com/');
+            });
         })
         .then((response) => {
           return response.text();
@@ -533,46 +520,6 @@ describe('Service Worker Test', function() {
         .catch((err) => {
           done(err);
         });
-    });**/
-  });
-
-  // The check for registration.active.state seemed to cause
-  // chrome to crash
-  /** describe('Please don\'t crash', () => {
-    it ('should not crash your Chrome tab', (done) => {
-      new Promise((resolve, reject) => {
-        navigator.serviceWorker.register('/sw-fetch-test.js')
-        .then((registration) => {
-          if (registration.active.state === 'activated') {
-            resolve();
-            return;
-          }
-
-          if (registration.installing === null) {
-            console.log(registration.active);
-            throw new Error('SW already installed.');
-          }
-
-          // We unregister all service workers after each test - this should
-          // always be an install
-          registration.installing.onstatechange = function() {
-            if (this.state !== 'activated') {
-              return;
-            }
-
-            resolve();
-          };
-        })
-        .catch((err) => {
-          reject(err);
-        });
-      })
-      .then(() => {
-        done();
-      })
-      .catch(() => {
-        done();
-      });
     });
-  });**/
+  });
 });

@@ -16,6 +16,18 @@
  */
 
 window.SWTestHelper = {
+  createNewIframe: function() {
+    return new Promise((resolve, reject) => {
+      var newIframe = document.createElement('iframe');
+      newIframe.classList.add('js-test-iframe');
+      newIframe.src = '/test-iframe/' + Math.random();
+      newIframe.addEventListener('load', () => {
+        resolve(newIframe);
+      });
+      document.body.appendChild(newIframe);
+    });
+  },
+
   unregisterAllRegistrations: function() {
     return navigator.serviceWorker.getRegistrations()
       .then((registrations) => {
@@ -62,9 +74,13 @@ window.SWTestHelper = {
 
   installSW: function(swFile) {
     return new Promise((resolve, reject) => {
+      var options = {scope: './'};
       var iframe = document.querySelector('.js-test-iframe');
-      navigator.serviceWorker.register(swFile,
-        {scope: iframe.contentWindow.location.pathname})
+      if (iframe) {
+        options = {scope: iframe.contentWindow.location.pathname};
+      }
+
+      navigator.serviceWorker.register(swFile, options)
       .then((registration) => {
         if (registration.installing === null) {
           throw new Error(swFile + ' already installed.');
@@ -89,9 +105,12 @@ window.SWTestHelper = {
 
   activateSW: function(swFile) {
     return new Promise((resolve, reject) => {
+      var options = {scope: './'};
       var iframe = document.querySelector('.js-test-iframe');
-      navigator.serviceWorker.register(swFile,
-        {scope: iframe.contentWindow.location.pathname})
+      if (iframe) {
+        options = {scope: iframe.contentWindow.location.pathname};
+      }
+      navigator.serviceWorker.register(swFile, options)
       .then((registration) => {
         if (registration.installing === null) {
           throw new Error(swFile + ' already installed.');
@@ -100,7 +119,7 @@ window.SWTestHelper = {
         // We unregister all service workers after each test - this should
         // always be an install
         registration.installing.onstatechange = function() {
-          if (this.state !== 'activating') {
+          if (this.state !== 'activated') {
             return;
           }
 

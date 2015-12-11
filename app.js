@@ -84,10 +84,6 @@ app.get('/echo/:toEcho', function(req, res) {
   res.send(req.params.toEcho);
 });
 
-app.get('/echo/:toEcho', function(req, res) {
-  res.send();
-});
-
 app.get('/test-iframe*', function(req, res) {
   res.sendFile(path.join(__dirname, 'front-end/test-iframe.html'));
 });
