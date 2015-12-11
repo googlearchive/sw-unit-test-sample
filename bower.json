@@ -1,0 +1,23 @@
+{
+  "name": "sw-test-bed",
+  "description": "",
+  "main": "app.js",
+  "authors": [
+    "Matt Gaunt <matt@gauntface.co.uk>"
+  ],
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "mocha": "~2.3.4",
+    "chai": "~3.4.2"
+  }
+}
