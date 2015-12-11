@@ -62,7 +62,9 @@ window.SWTestHelper = {
 
   installSW: function(swFile) {
     return new Promise((resolve, reject) => {
-      navigator.serviceWorker.register(swFile)
+      var iframe = document.querySelector('.js-test-iframe');
+      navigator.serviceWorker.register(swFile,
+        {scope: iframe.contentWindow.location.pathname})
       .then((registration) => {
         if (registration.installing === null) {
           throw new Error(swFile + ' already installed.');
@@ -87,10 +89,32 @@ window.SWTestHelper = {
 
   activateSW: function(swFile) {
     return new Promise((resolve, reject) => {
-      navigator.serviceWorker.register(swFile)
+      var iframe = document.querySelector('.js-test-iframe');
+      navigator.serviceWorker.register(swFile,
+        {scope: iframe.contentWindow.location.pathname})
       .then((registration) => {
-        return navigator.serviceWorker.ready;
+        if (registration.installing === null) {
+          throw new Error(swFile + ' already installed.');
+        }
+
+        // We unregister all service workers after each test - this should
+        // always be an install
+        registration.installing.onstatechange = function() {
+          if (this.state !== 'activating') {
+            return;
+          }
+
+          resolve();
+        };
       })
+      .catch((err) => {
+        console.log('Error with ' + swFile, err);
+        reject(err);
+      });
+    });
+
+    /** return new Promise((resolve, reject) => {
+
       .then((registration) => {
         if (!registration.active) {
           reject(new Error('No active service worker registration for ' +
@@ -104,7 +128,7 @@ window.SWTestHelper = {
         console.log('Error with ' + swFile, err);
         reject(err);
       });
-    });
+    });**/
   },
 
   getAllCachedAssets: function(cacheName) {

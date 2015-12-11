@@ -18,6 +18,7 @@
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 var express = require('express');
 var app = express();
 
@@ -58,6 +59,7 @@ app.get('/sw/:fileCache/:fileRev/:cacheId/:numOfAssets*', function(req, res) {
     req.params.cacheId);
 
   res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
   res.send(filtered);
 });
 
@@ -80,6 +82,14 @@ app.get('/timestamp/cache/*', function(req, res) {
 // This endpoint echos the text after echo/
 app.get('/echo/:toEcho', function(req, res) {
   res.send(req.params.toEcho);
+});
+
+app.get('/echo/:toEcho', function(req, res) {
+  res.send();
+});
+
+app.get('/test-iframe*', function(req, res) {
+  res.sendFile(path.join(__dirname, 'front-end/test-iframe.html'));
 });
 
 var server = app.listen(3851, function() {

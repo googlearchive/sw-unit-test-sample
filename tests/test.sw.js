@@ -32,7 +32,25 @@ describe('Service Worker Test', function() {
     Promise.all([
       SWTestHelper.unregisterAllRegistrations(),
       SWTestHelper.clearAllCaches()
-    ]).then(() => {
+    ])
+    .then(() => {
+      var iframeList = document.querySelectorAll('.js-test-iframe');
+      for (var i = 0; i < iframeList.length; i++) {
+        iframeList[i].parentElement.removeChild(iframeList[i]);
+      }
+    })
+    .then(() => {
+      return new Promise((resolve, reject) => {
+        var newIframe = document.createElement('iframe');
+        newIframe.classList.add('js-test-iframe');
+        newIframe.src = '/test-iframe/' + Math.random();
+        newIframe.addEventListener('load', () => {
+          resolve();
+        });
+        document.body.appendChild(newIframe);
+      });
+    })
+    .then(() => {
       console.log('\n\n----\n\n');
       done();
     }).catch(done);
@@ -42,7 +60,8 @@ describe('Service Worker Test', function() {
     Promise.all([
       SWTestHelper.unregisterAllRegistrations(),
       SWTestHelper.clearAllCaches()
-    ]).then(() => done()).catch(done);
+    ])
+    .then(() => done()).catch(done);
   });
 
   describe('Generic / Basic SW Tests', () => {
@@ -52,7 +71,7 @@ describe('Service Worker Test', function() {
     });
 
     it('should register a sw', function(done) {
-      SWTestHelper.installSW('/sw/no-file-cache/no-file-rev/1/3')
+      SWTestHelper.installSW('/sw/no-file-cache/no-file-rev/1/3', {})
       .then(() => {
         done();
       })
@@ -409,9 +428,10 @@ describe('Service Worker Test', function() {
 
   describe('Test fetch behaviour', () => {
     it('should have two cached assets', (done) => {
-      console.log('skip and active test 1');
+      console.log('skip and activate test 1');
       SWTestHelper.activateSW('/sw-fetch-test.js')
         .then(() => {
+          console.log('IS THIS RUNNING');
           return SWTestHelper.getAllCachedAssets('cache-test');
         })
         .then((cachedAssets) => {
@@ -424,7 +444,7 @@ describe('Service Worker Test', function() {
     });
 
     it('should be able to activate a new service worker after unregistering the first sw', (done) => {
-      console.log('skip and active test 2');
+      console.log('skip and activate test 2');
       SWTestHelper.activateSW('/sw-fetch-test.js')
         .then(() => {
           return SWTestHelper.getAllCachedAssets('cache-test');
