@@ -23,8 +23,8 @@ To run this sample you'll need the following:
 
 To run the tests run the following commands
 
-   npm install && bower install
-   node app.js
+    npm install && bower install
+    node app.js
 
 Then open a browser with service worker support and go to
 [http://localhost:3851/](http://localhost:3851/).
