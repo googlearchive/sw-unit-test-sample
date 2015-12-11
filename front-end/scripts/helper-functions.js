@@ -131,23 +131,6 @@ window.SWTestHelper = {
         reject(err);
       });
     });
-
-    /** return new Promise((resolve, reject) => {
-
-      .then((registration) => {
-        if (!registration.active) {
-          reject(new Error('No active service worker registration for ' +
-            'serviceWorker.ready. This shouldn\'t occur.'));
-          return;
-        }
-
-        resolve();
-      })
-      .catch((err) => {
-        console.log('Error with ' + swFile, err);
-        reject(err);
-      });
-    });**/
   },
 
   getAllCachedAssets: function(cacheName) {
