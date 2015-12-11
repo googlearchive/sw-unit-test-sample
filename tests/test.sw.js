@@ -423,7 +423,7 @@ describe('Service Worker Test', function() {
         });
     });
 
-    it('should have two cached assets 2', (done) => {
+    it('should be able to activate a new service worker after unregistering the first sw', (done) => {
       console.log('skip and active test 2');
       SWTestHelper.activateSW('/sw-fetch-test.js')
         .then(() => {
@@ -438,6 +438,8 @@ describe('Service Worker Test', function() {
         });
     });
 
+    // These tests should be fixed once the above test case is fixed.
+    // Current you can't test multiple activated sw from a single page
     /** it('should return cached echo response 1', (done) => {
       SWTestHelper.activateSW('/sw-fetch-test.js')
         .then(() => {

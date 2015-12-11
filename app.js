@@ -79,7 +79,6 @@ app.get('/timestamp/cache/*', function(req, res) {
 
 // This endpoint echos the text after echo/
 app.get('/echo/:toEcho', function(req, res) {
-  console.log(req.params.toEcho);
   res.send(req.params.toEcho);
 });
 
